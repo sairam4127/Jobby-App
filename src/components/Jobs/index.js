@@ -61,6 +61,9 @@ class Jobs extends Component {
     profile: {},
     jobsStatus: profileApiConst.inprogress,
     jobs: {},
+    searchInput: '',
+    employmentType: [],
+    salaryRange: [],
   }
 
   componentDidMount() {
@@ -70,9 +73,14 @@ class Jobs extends Component {
 
   getJobs = async () => {
     this.setState({jobsStatus: profileApiConst.inprogress})
+    const {searchInput, employmentType, salaryRange} = this.state
 
-    const apiUrl =
-      'https://apis.ccbp.in/jobs?employment_type=&minimum_package=&search='
+    const employTypeStr = employmentType.join(',')
+
+    console.log(employTypeStr)
+
+    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypeStr}&minimum_package=${salaryRange}&search=${searchInput}`
+    console.log(apiUrl)
     const jwtToken = Cookies.get('jwt_token')
     const options = {
       method: 'GET',
@@ -82,12 +90,22 @@ class Jobs extends Component {
     }
     const response = await fetch(apiUrl, options)
     const data = await response.json()
+    const updatedData = data.jobs.map(eachobj => ({
+      id: eachobj.id,
+      companyLogoUrl: eachobj.company_logo_url,
+      employmentType: eachobj.employment_type,
+      jobDescription: eachobj.job_description,
+      location: eachobj.location,
+      packagePerAnnum: eachobj.package_per_annum,
+      rating: eachobj.rating,
+      title: eachobj.title,
+    }))
     console.log(response)
     console.log(data)
     if (response.ok) {
       this.setState({
         jobsStatus: profileApiConst.success,
-        jobs: data.jobs,
+        jobs: updatedData,
       })
     } else {
       this.setState({jobsStatus: profileApiConst.failure})
@@ -107,17 +125,62 @@ class Jobs extends Component {
     }
     const response = await fetch(apiUrl, options)
     const data = await response.json()
-    console.log(response)
-    console.log(data)
+    const updatedData = {
+      name: data.profile_details.name,
+      profileImageUrl: data.profile_details.profile_image_url,
+      shortBio: data.profile_details.short_bio,
+    }
+
     if (response.ok) {
       this.setState({
         profileStatus: profileApiConst.success,
-        profile: data.profile_details,
+        profile: updatedData,
       })
     } else {
       this.setState({profileStatus: profileApiConst.failure})
     }
   }
+
+  onChangeSalaryRange = event => {
+    this.setState({salaryRange: event.target.value}, this.getJobs)
+  }
+
+  onChangedEmploymentType = event => {
+    const {employmentType} = this.state
+    const updatedList = employmentType.filter(
+      eachstr => eachstr !== event.target.value,
+    )
+    if (employmentType.includes(event.target.value)) {
+      this.setState({employmentType: [...updatedList]}, this.getJobs)
+    } else {
+      this.setState(
+        {employmentType: [...updatedList, event.target.value]},
+        this.getJobs,
+      )
+    }
+  }
+
+  onClickSearchIcon = () => {
+    const {searchInput} = this.state
+    this.setState({searchInput}, this.getJobs)
+  }
+
+  onChangedInput = event => {
+    this.setState({searchInput: event.target.value})
+  }
+
+  jobsFailureView = () => (
+    <div className="jobs-jobs-failure-view">
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
+        alt="failure view"
+        className="jobs-failure-view"
+      />
+      <button type="button" className="retry-btn" onClick={this.getJobs}>
+        Retry
+      </button>
+    </div>
+  )
 
   jobsProgressView = () => (
     <div className="loader-container" data-testid="loader">
@@ -127,10 +190,25 @@ class Jobs extends Component {
 
   jobsSuccessView = () => {
     const {jobs} = this.state
+    if (jobs.length === 0) {
+      return (
+        <div className="jobs-jobs-failure-view">
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/no-jobs-img.png"
+            alt="no jobs"
+            className="jobs-failure-view"
+          />
+          <h1 className="jobs-employment-list-item-head">No Jobs Found</h1>
+          <p className="jobs-profile-success-para">
+            We couls not find any jobs, Try other filters
+          </p>
+        </div>
+      )
+    }
     return (
       <ul className="jobs-items-list-cont">
         {jobs.map(eachobj => (
-          <JobCard eachobj={eachobj} />
+          <JobCard eachobj={eachobj} key={eachobj.id} />
         ))}
       </ul>
     )
@@ -145,7 +223,8 @@ class Jobs extends Component {
             type="checkbox"
             className="check-box-input-circle"
             id={eachobj.salaryRangeId}
-            value={eachobj.label}
+            value={eachobj.salaryRangeId}
+            onClick={this.onChangeSalaryRange}
           />
           <label
             htmlFor={eachobj.salaryRangeId}
@@ -167,7 +246,8 @@ class Jobs extends Component {
             type="checkbox"
             className="check-box-input"
             id={eachobj.employmentTypeId}
-            value={eachobj.label}
+            value={eachobj.employmentTypeId}
+            onClick={this.onChangedEmploymentType}
           />
           <label
             htmlFor={eachobj.employmentTypeId}
@@ -188,7 +268,7 @@ class Jobs extends Component {
 
   profileFailureView = () => (
     <div className="jobs-profile-failure-view">
-      <button type="button" className="retry-btn">
+      <button type="button" className="retry-btn" onClick={this.getProfile}>
         Retry
       </button>
     </div>
@@ -199,12 +279,12 @@ class Jobs extends Component {
     return (
       <div className="jobs-profile-success-view">
         <img
-          src={profile.profile_image_url}
+          src={profile.profileImageUrl}
           alt={profile.name}
           className="jobs-profile-img"
         />
-        <h1>{profile.name}</h1>
-        <p>{profile.short_bio}</p>
+        <h1 className="jobs-profile-success-head">{profile.name}</h1>
+        <p className="jobs-profile-success-para">{profile.shortBio}</p>
       </div>
     )
   }
@@ -241,8 +321,17 @@ class Jobs extends Component {
 
   searchInput = () => (
     <div className="search-ele-cont">
-      <input type="search" className="search-input" placeholder="Search" />
-      <button type="button" className="search-icon-btn">
+      <input
+        type="search"
+        className="search-input"
+        placeholder="Search"
+        onChange={this.onChangedInput}
+      />
+      <button
+        type="button"
+        className="search-icon-btn"
+        onClick={this.onClickSearchIcon}
+      >
         {}
         <AiOutlineSearch size="30" className="search-icon" />
       </button>
@@ -263,6 +352,10 @@ class Jobs extends Component {
             {this.salaryOptions()}
           </div>
           <div className="job-items-cont">{this.allJobs()}</div>
+          <div className="jobs-second-cont">
+            <div className="search-cont-2">{this.searchInput()}</div>
+            <div className="job-items-cont-2">{this.allJobs()}</div>
+          </div>
         </div>
       </>
     )
