@@ -5,6 +5,12 @@ import {HiLocationMarker} from 'react-icons/hi'
 import {RiSuitcaseFill} from 'react-icons/ri'
 import {BsBoxArrowUpRight} from 'react-icons/bs'
 
+import Loader from 'react-loader-spinner'
+
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
+
+import Skills from '../Skills'
+import SimilarJob from '../SimilarJob'
 import './index.css'
 import Header from '../Header'
 
@@ -26,6 +32,7 @@ class JobItemDetails extends Component {
   }
 
   getjobDetails = async () => {
+    this.setState({apiStatus: profileApiConst.inprogress})
     const {match} = this.props
     const {params} = match
     const {id} = params
@@ -82,9 +89,35 @@ class JobItemDetails extends Component {
     }
   }
 
+  inProgressView = () => (
+    <div className="jobs-item-details-failure-view" data-testid="loader">
+      <Loader type="ThreeDots" color="#ffffff" height="50" width="50" />
+    </div>
+  )
+
+  failureView = () => (
+    <div className="jobs-item-details-failure-view">
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
+        alt="failure view"
+        className="jobs-item-details-failure-view-img"
+      />
+      <h1 className="job-item-details-failure-title">
+        Oops! Something Went Wrong
+      </h1>
+      <p className="job-item-details-failure-para">
+        We cannot seem to find the page you are looking for
+      </p>
+      <button type="button" className="retry-btn" onClick={this.getjobDetails}>
+        Retry
+      </button>
+    </div>
+  )
+
   successView = () => {
     console.log('rama')
     const {jobDetails} = this.state
+    console.log(jobDetails)
     const {
       companyLogoUrl,
       companyWebsiteUrl,
@@ -95,14 +128,17 @@ class JobItemDetails extends Component {
       packagePerAnnum,
       jobDescription,
       skills,
+      lifeAtCompany,
     } = jobDetails.jobDetails
+    const {similarJobs} = jobDetails
+
     return (
       <div className="job-item-details">
         <div className="job-item-details-first-cont">
           <div className="job-item-details-logo-cont">
             <img
               src={companyLogoUrl}
-              alt={title}
+              alt="job details company logo"
               className="job-item-details-logo"
             />
             <div>
@@ -117,11 +153,11 @@ class JobItemDetails extends Component {
             <div className="job-item-details-loc-type-cont">
               <p className="job-item-details-location-cont">
                 <HiLocationMarker size="30" />
-                {location}
+                <p>{location}</p>
               </p>
               <p className="job-card-location-cont">
                 <RiSuitcaseFill size="27" />
-                {employmentType}
+                <p>{employmentType}</p>
               </p>
             </div>
             <p className="job-card-location-cont">{packagePerAnnum}</p>
@@ -140,17 +176,27 @@ class JobItemDetails extends Component {
           <h1 className="job-item-details-title">Skills</h1>
           <ul className="job-item-details-skills-cont">
             {skills.map(eachobj => (
-              <li className="job-item-details-skills-item">
-                <img
-                  src={eachobj.imageUrl}
-                  alt={eachobj.name}
-                  className="job-item-details-skills-logo"
-                />
-                <p className="job-item-details-title">{eachobj.name}</p>
-              </li>
+              <Skills eachobj={eachobj} key={eachobj.name} />
             ))}
           </ul>
+          <h1 className="job-item-details-title">Life at Company</h1>
+          <div className="life-at-company-cont">
+            <p className="job-item-details-description">
+              {lifeAtCompany.description}
+            </p>
+            <img
+              src={lifeAtCompany.imageUrl}
+              alt="life at company"
+              className="life-at-company-img"
+            />
+          </div>
         </div>
+        <h1 className="job-item-details-similar-jobs-title">Similar Jobs</h1>
+        <ul className="job-item-details-similar-jobs-cont">
+          {similarJobs.map(eachobj => (
+            <SimilarJob eachobj={eachobj} key={eachobj.id} />
+          ))}
+        </ul>
       </div>
     )
   }
@@ -160,6 +206,10 @@ class JobItemDetails extends Component {
     switch (apiStatus) {
       case profileApiConst.success:
         return this.successView()
+      case profileApiConst.failure:
+        return this.failureView()
+      case profileApiConst.inprogress:
+        return this.inProgressView()
 
       default:
         return null
@@ -168,10 +218,10 @@ class JobItemDetails extends Component {
 
   render() {
     return (
-      <>
+      <div className="job-item-details-main-cont">
         <Header />
         {this.jobItemDetailsView()}
-      </>
+      </div>
     )
   }
 }

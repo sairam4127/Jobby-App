@@ -24,6 +24,8 @@
     align-items: center;
     justify-content: space-between;
     width: 150px;
+    padding: 0px;
+    list-style-type: none;
   }
 
   .header-logout-icon-btn {

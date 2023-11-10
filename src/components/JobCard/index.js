@@ -13,17 +13,22 @@ const JobCard = props => {
     location,
     employmentType,
     rating,
-    title,
+
     packagePerAnnum,
     jobDescription,
   } = eachobj
+
   return (
     <Link to={`/jobs/${id}`} className="job-card-link">
       <li className="job-card-item">
         <div className="job-card-logo-cont">
-          <img src={companyLogoUrl} alt={title} className="job-card-logo" />
+          <img
+            src={companyLogoUrl}
+            alt="company logo"
+            className="job-card-logo"
+          />
           <div>
-            <h1 className="job-card-title">{title}</h1>
+            <h1 className="job-card-title">{eachobj.title}</h1>
             <div className="job-card-rating-cont">
               <AiFillStar size="30" className="star-icon" />
               <p className="job-card-title">{rating}</p>
@@ -34,11 +39,11 @@ const JobCard = props => {
           <div className="job-card-loc-type-cont">
             <p className="job-card-location-cont">
               <HiLocationMarker size="30" />
-              {location}
+              <p>{location}</p>
             </p>
             <p className="job-card-location-cont">
               <RiSuitcaseFill size="27" />
-              {employmentType}
+              <p> {employmentType}</p>
             </p>
           </div>
           <p className="job-card-location-cont">{packagePerAnnum}</p>

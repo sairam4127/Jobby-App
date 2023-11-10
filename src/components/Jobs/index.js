@@ -5,6 +5,8 @@ import Loader from 'react-loader-spinner'
 
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 
+import SalaryRangeList from '../SalaryRangeList'
+import EmploymentTypesList from '../EmploymentTypesList'
 import JobCard from '../JobCard'
 import Header from '../Header'
 
@@ -102,6 +104,7 @@ class Jobs extends Component {
     }))
     console.log(response)
     console.log(data)
+    console.log(updatedData)
     if (response.ok) {
       this.setState({
         jobsStatus: profileApiConst.success,
@@ -142,7 +145,12 @@ class Jobs extends Component {
   }
 
   onChangeSalaryRange = event => {
-    this.setState({salaryRange: event.target.value}, this.getJobs)
+    const {salaryRange} = this.state
+    if (salaryRange === event.target.value) {
+      this.setState({salaryRange: ''}, this.getJobs)
+    } else {
+      this.setState({salaryRange: event.target.value}, this.getJobs)
+    }
   }
 
   onChangedEmploymentType = event => {
@@ -176,6 +184,12 @@ class Jobs extends Component {
         alt="failure view"
         className="jobs-failure-view"
       />
+      <h1 className="job-item-details-failure-title">
+        Oops! Something Went Wrong
+      </h1>
+      <p className="job-item-details-failure-para">
+        We cannot seem to find the page you are looking for
+      </p>
       <button type="button" className="retry-btn" onClick={this.getJobs}>
         Retry
       </button>
@@ -200,7 +214,7 @@ class Jobs extends Component {
           />
           <h1 className="jobs-employment-list-item-head">No Jobs Found</h1>
           <p className="jobs-profile-success-para">
-            We couls not find any jobs, Try other filters
+            We could not find any jobs. Try other filters
           </p>
         </div>
       )
@@ -218,21 +232,11 @@ class Jobs extends Component {
     <ul className="jobs-employment-items-cont">
       <h1 className="jobs-employment-list-item-head">Salary Range</h1>
       {salaryRangesList.map(eachobj => (
-        <li className="jobs-employment-list-item">
-          <input
-            type="checkbox"
-            className="check-box-input-circle"
-            id={eachobj.salaryRangeId}
-            value={eachobj.salaryRangeId}
-            onClick={this.onChangeSalaryRange}
-          />
-          <label
-            htmlFor={eachobj.salaryRangeId}
-            className="jobs-employment-list-item-label"
-          >
-            {eachobj.label}
-          </label>
-        </li>
+        <SalaryRangeList
+          eachobj={eachobj}
+          key={eachobj.salaryRangeId}
+          onClicked={this.onChangeSalaryRange}
+        />
       ))}
     </ul>
   )
@@ -241,21 +245,11 @@ class Jobs extends Component {
     <ul className="jobs-employment-items-cont">
       <h1 className="jobs-employment-list-item-head">Type of Employment</h1>
       {employmentTypesList.map(eachobj => (
-        <li className="jobs-employment-list-item">
-          <input
-            type="checkbox"
-            className="check-box-input"
-            id={eachobj.employmentTypeId}
-            value={eachobj.employmentTypeId}
-            onClick={this.onChangedEmploymentType}
-          />
-          <label
-            htmlFor={eachobj.employmentTypeId}
-            className="jobs-employment-list-item-label"
-          >
-            {eachobj.label}
-          </label>
-        </li>
+        <EmploymentTypesList
+          eachobj={eachobj}
+          key={eachobj.employmentTypeId}
+          onClicked={this.onChangedEmploymentType}
+        />
       ))}
     </ul>
   )
@@ -280,7 +274,7 @@ class Jobs extends Component {
       <div className="jobs-profile-success-view">
         <img
           src={profile.profileImageUrl}
-          alt={profile.name}
+          alt="profile"
           className="jobs-profile-img"
         />
         <h1 className="jobs-profile-success-head">{profile.name}</h1>
@@ -331,6 +325,7 @@ class Jobs extends Component {
         type="button"
         className="search-icon-btn"
         onClick={this.onClickSearchIcon}
+        data-testid="searchButton"
       >
         {}
         <AiOutlineSearch size="30" className="search-icon" />

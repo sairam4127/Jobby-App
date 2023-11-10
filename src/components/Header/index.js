@@ -10,7 +10,7 @@ const Header = props => {
   const onClickedLogout = () => {
     Cookies.remove('jwt_token')
     const {history} = props
-    history.replace('/')
+    history.replace('/login')
   }
 
   return (
@@ -37,22 +37,30 @@ const Header = props => {
       >
         Logout
       </button>
-      <div className="header-icons-cont">
+      <ul className="header-icons-cont">
         <Link to="/" className="header-home-link">
-          <AiFillHome size="30" />
+          <li>
+            <AiFillHome size="30" />
+          </li>
         </Link>
         <Link to="/jobs" className="header-home-link">
-          <RiSuitcaseFill size="30" />
+          <li>
+            {' '}
+            <RiSuitcaseFill size="30" />
+          </li>
         </Link>
-        <button
-          type="button"
-          className="header-logout-icon-btn"
-          onClick={onClickedLogout}
-        >
-          {}
-          <FiLogOut size="30" />
-        </button>
-      </div>
+        <li>
+          {' '}
+          <button
+            type="button"
+            className="header-logout-icon-btn"
+            onClick={onClickedLogout}
+          >
+            {}
+            <FiLogOut size="30" />
+          </button>
+        </li>
+      </ul>
     </nav>
   )
 }
