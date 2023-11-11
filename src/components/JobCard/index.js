@@ -1,59 +1,57 @@
 import {Link} from 'react-router-dom'
-import {AiFillStar} from 'react-icons/ai'
-import {HiLocationMarker} from 'react-icons/hi'
-import {RiSuitcaseFill} from 'react-icons/ri'
-
+import {BsFillBriefcaseFill, BsStarFill} from 'react-icons/bs'
+import {MdLocationOn} from 'react-icons/md'
 import './index.css'
 
 const JobCard = props => {
-  const {eachobj} = props
+  const {jobData} = props
   const {
-    id,
     companyLogoUrl,
-    location,
     employmentType,
-    rating,
-
-    packagePerAnnum,
     jobDescription,
-  } = eachobj
-
+    location,
+    packagePerAnnum,
+    rating,
+    title,
+    id,
+  } = jobData
   return (
-    <Link to={`/jobs/${id}`} className="job-card-link">
-      <li className="job-card-item">
-        <div className="job-card-logo-cont">
-          <img
-            src={companyLogoUrl}
-            alt="company logo"
-            className="job-card-logo"
-          />
-          <div>
-            <h1 className="job-card-title">{eachobj.title}</h1>
-            <div className="job-card-rating-cont">
-              <AiFillStar size="30" className="star-icon" />
-              <p className="job-card-title">{rating}</p>
+    <Link to={`/jobs/${id}`} className="link-item">
+      <li className="job-item">
+        <div className="logo-title-location-container">
+          <div className="logo-title-container">
+            <img
+              src={companyLogoUrl}
+              alt="company logo"
+              className="company-logo"
+            />
+            <div className="title-rating-container">
+              <h1 className="title-heading">{title}</h1>
+              <div className="rating-container">
+                <BsStarFill className="rating-icon" />
+                <p className="rating-heading">{rating}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="job-card-job-type-cont">
-          <div className="job-card-loc-type-cont">
-            <p className="job-card-location-cont">
-              <HiLocationMarker size="30" />
-              <p>{location}</p>
-            </p>
-            <p className="job-card-location-cont">
-              <RiSuitcaseFill size="27" />
-              <p> {employmentType}</p>
-            </p>
+          <div className="location-package-container">
+            <div className="location-employee-container">
+              <div className="location-container">
+                <MdLocationOn className="location-icon" />
+                <p className="location-heading">{location}</p>
+              </div>
+              <div className="employee-type-container">
+                <BsFillBriefcaseFill className="brief-case-icon" />
+                <p className="employee-type-heading">{employmentType}</p>
+              </div>
+            </div>
+            <p className="package-heading">{packagePerAnnum}</p>
           </div>
-          <p className="job-card-location-cont">{packagePerAnnum}</p>
         </div>
-        <hr className="job-card-line" />
-        <h1 className="job-card-title">Description</h1>
-        <p className="job-card-description">{jobDescription}</p>
+        <hr className="line" />
+        <h1 className="description-heading">Description</h1>
+        <p className="description-text">{jobDescription}</p>
       </li>
     </Link>
   )
 }
-
 export default JobCard
